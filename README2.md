@@ -54,42 +54,53 @@ Guardian automatically notifies trusted family members when high-risk scams are 
 ## Architecture
 
 ```mermaid
-graph TB
-    subgraph Android["Android App (Kotlin)"]
+graph LR
+    subgraph Frontend["🎯 Android App"]
         SMS[SMS Receiver]
-        LOCAL[Local Rules Engine<br/>50ms]
-        UI[Alert UI]
+        LOCAL[Local Rules<br/>⚡ 50ms]
+        UI[User Alert]
     end
     
-    subgraph Backend["Backend (FastAPI)"]
+    subgraph Backend["⚙️ FastAPI Backend"]
         API[API Gateway]
         RULES[Rules Engine]
         ML[ML Classifier<br/>BERT]
-        CACHE[(Redis Cache)]
-        ALERT[Alert Dispatcher]
+        ALERT[Alert Service]
     end
     
-    subgraph Storage["Data Storage"]
-        DB[(PostgreSQL)]
-        ENC[Encrypted Shared<br/>Messages 48h TTL]
+    subgraph Cache["💾 Redis"]
+        REDIS[(Cache<br/>2-5ms)]
+    end
+    
+    subgraph Database["🗄️ PostgreSQL"]
+        DB[(Message Events)]
+        ENC[(Encrypted<br/>Shared Msgs<br/>48h TTL)]
     end
     
     SMS --> LOCAL
-    LOCAL -->|High Confidence| UI
-    LOCAL -->|Uncertain| API
-    API --> CACHE
-    CACHE -->|Cache Miss| RULES
-    CACHE -->|Cache Miss| ML
-    RULES --> API
-    ML --> API
+    LOCAL -->|✅ Clear Scam| UI
+    LOCAL -->|❓ Uncertain| API
+    
+    API --> REDIS
+    REDIS -->|Miss| RULES
+    REDIS -->|Miss| ML
+    RULES --> REDIS
+    ML --> REDIS
+    REDIS --> API
+    
     API --> DB
     API --> ENC
     API --> ALERT
-    ALERT -.->|Push Notification| Guardian[Guardian App]
     
-    style LOCAL fill:#90EE90
-    style CACHE fill:#FFD700
-    style ENC fill:#FFA07A
+    ALERT -.->|📲 Push| Guardian[Guardian Device]
+    
+    style Frontend fill:#E8F5E9,stroke:#4CAF50,stroke-width:2px,color:#000
+    style Backend fill:#E3F2FD,stroke:#2196F3,stroke-width:2px,color:#000
+    style Cache fill:#FFF9C4,stroke:#FBC02D,stroke-width:2px,color:#000
+    style Database fill:#F3E5F5,stroke:#9C27B0,stroke-width:2px,color:#000
+    style LOCAL fill:#81C784,stroke:#388E3C,stroke-width:2px,color:#000
+    style REDIS fill:#FFD54F,stroke:#F57C00,stroke-width:2px,color:#000
+    style UI fill:#66BB6A,stroke:#2E7D32,stroke-width:2px,color:#000
 ```
 
 ## Local Setup
