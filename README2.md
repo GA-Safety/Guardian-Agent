@@ -102,39 +102,6 @@ graph LR
   linkStyle default stroke:#666,stroke-width:1px;
 ```
 
-```mermaid
-graph LR
-  subgraph FE["Android App"]
-    direction LR
-    SMS["SMS"]
-    Local["Local"]
-    UI["UI"]
-  end
-
-  subgraph BE["Backend"]
-    direction LR
-    API["API"]
-    Verify["Verify"]
-    Notify["Notify"]
-  end
-
-  subgraph C["Cache"]
-    direction LR
-    R[(Redis)]
-  end
-
-  subgraph D["Storage"]
-    direction LR
-    Logs[(Logs)]
-    Shared[(Shared)]
-  end
-
-  SMS --> Local --> UI
-  Local --> API --> Verify --> R
-  Verify --> Logs
-  UI --> Notify --> Shared
-```
-
 ## Local Setup
 
 ### Requirements
