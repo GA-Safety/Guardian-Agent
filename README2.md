@@ -55,51 +55,59 @@ Guardian automatically notifies trusted family members when high-risk scams are 
 
 ```mermaid
 graph LR
-    subgraph Frontend["🎯 Android App"]
-        SMS[SMS Receiver]
-        LOCAL[Local Rules<br/>⚡ 50ms]
-        UI_HIGH[⚠️ High Risk Alert<br/>Elderly User]
-        UI_MED[⚡ Medium Risk<br/>Share with Family?]
-    end
-    
-    subgraph Backend["⚙️ FastAPI Backend"]
-        API[API Gateway]
-        VERIFY[ML Verification]
-        ALERT[Alert Dispatcher]
-    end
-    
-    subgraph Cache["💾 Redis"]
-        REDIS[(Cache<br/>2-5ms)]
-    end
-    
-    subgraph Database["🗄️ PostgreSQL"]
-        DB[(Logs)]
-        ENC[(Shared Msgs)]
-    end
-    
-    SMS --> LOCAL
-    LOCAL -->|🔴 HIGH| UI_HIGH
-    LOCAL -->|🟡 MEDIUM| API
-    LOCAL -->|🟢 LOW| DB
-    
-    UI_HIGH -.->|Auto-notify| Guardian1[📲 Guardian]
-    
-    API --> REDIS
-    REDIS --> VERIFY
-    VERIFY -->|Scam| UI_MED
-    VERIFY -->|Safe| DB
-    
-    UI_MED -->|User clicks Yes| ALERT
-    ALERT -.->|Notify| Guardian2[📲 Guardian]
-    
-    ALERT --> ENC
-    
-    style Frontend fill:#E8F5E9,stroke:#4CAF50,stroke-width:2px,color:#000
-    style Backend fill:#E3F2FD,stroke:#2196F3,stroke-width:2px,color:#000
-    style Cache fill:#FFF9C4,stroke:#FBC02D,stroke-width:2px,color:#000
-    style Database fill:#F3E5F5,stroke:#9C27B0,stroke-width:2px,color:#000
-    style UI_HIGH fill:#EF5350,stroke:#C62828,stroke-width:3px,color:#FFF
-    style UI_MED fill:#FFA726,stroke:#E65100,stroke-width:2px,color:#000
+  %% Layout
+  subgraph Mobile["Mobile (Android)"]
+    SMS["SMS Receiver"]
+    Local["Local Check"]
+    UI["User Alert"]
+  end
+
+  subgraph API["Backend (FastAPI)"]
+    Gateway["API"]
+    Rules["Rules"]
+    Model["ML Classifier"]
+    Alerts["Alerts"]
+  end
+
+  subgraph Cache["Cache (Redis)"]
+    Redis[(Redis)]
+  end
+
+  subgraph Data["Data (Postgres)"]
+    Events[(Message Events)]
+    Shared[(Shared Msgs<br/>Encrypted • 48h TTL)]
+  end
+
+  %% Flow
+  SMS --> Local
+  Local -->|"clear"| UI
+  Local -->|"uncertain"| Gateway
+
+  Gateway --> Redis
+  Redis -->|miss| Rules
+  Redis -->|miss| Model
+  Rules --> Redis
+  Model --> Redis
+  Redis --> Gateway
+
+  Gateway --> Events
+  Gateway --> Shared
+  Gateway --> Alerts
+  Alerts -.-> Guardian["Guardian Device"]
+
+  %% Minimal styling
+  classDef panel fill:#F7F7F8,stroke:#D0D5DD,color:#111,stroke-width:1px;
+  classDef accent fill:#EEF4FF,stroke:#7AA2FF,color:#111,stroke-width:1px;
+  classDef store fill:#FFFFFF,stroke:#D0D5DD,color:#111,stroke-width:1px;
+  classDef node fill:#FFFFFF,stroke:#D0D5DD,color:#111,stroke-width:1px;
+
+  class Mobile,Cache,Data panel;
+  class API accent;
+  class Redis,Events,Shared store;
+  class SMS,Local,UI,Gateway,Rules,Model,Alerts,Guardian node;
+
+  linkStyle default stroke:#98A2B3,stroke-width:1px;
+
 ```
 
 ## Local Setup
