@@ -55,59 +55,38 @@ Guardian automatically notifies trusted family members when high-risk scams are 
 
 ```mermaid
 graph LR
-  %% --- Columns (left -> right) ---
   subgraph FE["Android App"]
     SMS["SMS Receiver"]
     Local["On-device Check"]
-    Hi["High Risk Alert"]
-    Med["Confirm Share?"]
+    UI["User Prompt / Alert"]
   end
 
-  subgraph BE["FastAPI Backend"]
-    API["API Gateway"]
+  subgraph BE["Backend"]
+    API["API"]
     Verify["Verification"]
-    Dispatch["Dispatch"]
+    Notify["Notify Guardian"]
   end
 
-  subgraph C["Redis"]
-    R[(Cache)]
+  subgraph C["Cache"]
+    R[(Redis)]
   end
 
-  subgraph D["Postgres"]
+  subgraph D["Storage"]
     Logs[(Logs)]
     Shared[(Shared Msgs)]
   end
 
-  %% --- Flow ---
   SMS --> Local
+  Local -->|"high"| UI
+  UI -.-> Notify
 
-  Local -->|"HIGH"| Hi
-  Hi -.->|"notify"| G1["Guardian"]
-
-  Local -->|"MED"| API
-  Local -->|"LOW"| Logs
-
-  API --> R
-  R --> Verify
-  Verify -->|"risk"| Med
+  Local -->|"medium"| API
+  API --> R --> Verify
+  Verify -->|"risk"| UI
   Verify -->|"ok"| Logs
 
-  Med -->|"share"| Dispatch
-  Dispatch -.->|"notify"| G2["Guardian"]
-  Dispatch --> Shared
-
-  %% --- Dark minimal styling ---
-  classDef panel fill:#15171A,stroke:#2A2F36,color:#E6E6E6,stroke-width:1px;
-  classDef node  fill:#0F1115,stroke:#2A2F36,color:#E6E6E6,stroke-width:1px;
-  classDef store fill:#0B0D10,stroke:#3A404A,color:#E6E6E6,stroke-width:1px;
-  classDef warn  fill:#1B1D22,stroke:#6B7280,color:#EDEDED,stroke-width:1.5px;
-
-  class FE,BE,C,D panel;
-  class SMS,Local,API,Verify,Dispatch,G1,G2 node;
-  class Logs,Shared,R store;
-  class Hi,Med warn;
-
-  linkStyle default stroke:#6B7280,stroke-width:1px;
+  UI -->|"share"| Notify
+  Notify --> Shared
 ```
 
 ## Local Setup
