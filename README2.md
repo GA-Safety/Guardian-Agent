@@ -55,16 +55,17 @@ Guardian automatically notifies trusted family members when high-risk scams are 
 
 ```mermaid
 graph LR
+  %% --- Subgraphs ---
   subgraph FE["Android App"]
-    SMS["SMS Receiver"]
-    Local["On-device Check"]
-    UI["User Alert"]
+    SMS["SMS"]
+    Local["On-device"]
+    UI["Alert"]
   end
 
   subgraph BE["Backend"]
     API["API"]
-    Verify["Verification"]
-    Notify["Notify Guardian"]
+    Verify["Verify"]
+    Notify["Notify"]
   end
 
   subgraph C["Cache"]
@@ -73,21 +74,32 @@ graph LR
 
   subgraph D["Storage"]
     Logs[(Logs)]
-    Shared[(Shared Msgs)]
+    Shared[(Shared)]
   end
 
+  %% --- Flow ---
   SMS --> Local
-  Local --> UI
-  Local --> API
+  Local -->|"high"| UI
+  UI -.-> Notify
 
-  API --> Verify
-  Verify --> R
-  Verify --> Logs
-  Verify --> UI
+  Local -->|"medium"| API
+  API --> R --> Verify
+  Verify -->|"risk"| UI
+  Verify -->|"ok"| Logs
 
-  UI --> Notify
+  UI -->|"share"| Notify
   Notify --> Shared
-  Notify -.-> Guardian
+
+  %% --- Compact styling ---
+  classDef box fill:#F7F7F7,stroke:#444,color:#111,stroke-width:1px,font-size:11px;
+  classDef store fill:#FFFFFF,stroke:#444,color:#111,stroke-width:1px,font-size:11px;
+  classDef panel fill:#FAFAFA,stroke:#888,color:#111,stroke-width:1px,font-size:12px;
+
+  class SMS,Local,UI,API,Verify,Notify box;
+  class R,Logs,Shared store;
+  class FE,BE,C,D panel;
+
+  linkStyle default stroke:#666,stroke-width:1px;
 ```
 
 ## Local Setup
