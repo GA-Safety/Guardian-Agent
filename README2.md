@@ -58,14 +58,14 @@ graph LR
     subgraph Frontend["🎯 Android App"]
         SMS[SMS Receiver]
         LOCAL[Local Rules<br/>⚡ 50ms]
-        UI[User Alert]
+        UI_HIGH[⚠️ High Risk Alert<br/>Elderly User]
+        UI_MED[⚡ Medium Risk<br/>Share with Family?]
     end
     
     subgraph Backend["⚙️ FastAPI Backend"]
         API[API Gateway]
-        RULES[Rules Engine]
-        ML[ML Classifier<br/>BERT]
-        ALERT[Alert Service]
+        VERIFY[ML Verification]
+        ALERT[Alert Dispatcher]
     end
     
     subgraph Cache["💾 Redis"]
@@ -73,34 +73,33 @@ graph LR
     end
     
     subgraph Database["🗄️ PostgreSQL"]
-        DB[(Message Events)]
-        ENC[(Encrypted<br/>Shared Msgs<br/>48h TTL)]
+        DB[(Logs)]
+        ENC[(Shared Msgs)]
     end
     
     SMS --> LOCAL
-    LOCAL -->|✅ Clear Scam| UI
-    LOCAL -->|❓ Uncertain| API
+    LOCAL -->|🔴 HIGH| UI_HIGH
+    LOCAL -->|🟡 MEDIUM| API
+    LOCAL -->|🟢 LOW| DB
+    
+    UI_HIGH -.->|Auto-notify| Guardian1[📲 Guardian]
     
     API --> REDIS
-    REDIS -->|Miss| RULES
-    REDIS -->|Miss| ML
-    RULES --> REDIS
-    ML --> REDIS
-    REDIS --> API
+    REDIS --> VERIFY
+    VERIFY -->|Scam| UI_MED
+    VERIFY -->|Safe| DB
     
-    API --> DB
-    API --> ENC
-    API --> ALERT
+    UI_MED -->|User clicks Yes| ALERT
+    ALERT -.->|Notify| Guardian2[📲 Guardian]
     
-    ALERT -.->|📲 Push| Guardian[Guardian Device]
+    ALERT --> ENC
     
     style Frontend fill:#E8F5E9,stroke:#4CAF50,stroke-width:2px,color:#000
     style Backend fill:#E3F2FD,stroke:#2196F3,stroke-width:2px,color:#000
     style Cache fill:#FFF9C4,stroke:#FBC02D,stroke-width:2px,color:#000
     style Database fill:#F3E5F5,stroke:#9C27B0,stroke-width:2px,color:#000
-    style LOCAL fill:#81C784,stroke:#388E3C,stroke-width:2px,color:#000
-    style REDIS fill:#FFD54F,stroke:#F57C00,stroke-width:2px,color:#000
-    style UI fill:#66BB6A,stroke:#2E7D32,stroke-width:2px,color:#000
+    style UI_HIGH fill:#EF5350,stroke:#C62828,stroke-width:3px,color:#FFF
+    style UI_MED fill:#FFA726,stroke:#E65100,stroke-width:2px,color:#000
 ```
 
 ## Local Setup
