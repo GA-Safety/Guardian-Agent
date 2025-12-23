@@ -55,59 +55,59 @@ Guardian automatically notifies trusted family members when high-risk scams are 
 
 ```mermaid
 graph LR
-  %% Layout
-  subgraph Mobile["Mobile (Android)"]
+  %% --- Columns (left -> right) ---
+  subgraph FE["Android App"]
     SMS["SMS Receiver"]
-    Local["Local Check"]
-    UI["User Alert"]
+    Local["On-device Check"]
+    Hi["High Risk Alert"]
+    Med["Confirm Share?"]
   end
 
-  subgraph API["Backend (FastAPI)"]
-    Gateway["API"]
-    Rules["Rules"]
-    Model["ML Classifier"]
-    Alerts["Alerts"]
+  subgraph BE["FastAPI Backend"]
+    API["API Gateway"]
+    Verify["Verification"]
+    Dispatch["Dispatch"]
   end
 
-  subgraph Cache["Cache (Redis)"]
-    Redis[(Redis)]
+  subgraph C["Redis"]
+    R[(Cache)]
   end
 
-  subgraph Data["Data (Postgres)"]
-    Events[(Message Events)]
-    Shared[(Shared Msgs<br/>Encrypted • 48h TTL)]
+  subgraph D["Postgres"]
+    Logs[(Logs)]
+    Shared[(Shared Msgs)]
   end
 
-  %% Flow
+  %% --- Flow ---
   SMS --> Local
-  Local -->|"clear"| UI
-  Local -->|"uncertain"| Gateway
 
-  Gateway --> Redis
-  Redis -->|miss| Rules
-  Redis -->|miss| Model
-  Rules --> Redis
-  Model --> Redis
-  Redis --> Gateway
+  Local -->|"HIGH"| Hi
+  Hi -.->|"notify"| G1["Guardian"]
 
-  Gateway --> Events
-  Gateway --> Shared
-  Gateway --> Alerts
-  Alerts -.-> Guardian["Guardian Device"]
+  Local -->|"MED"| API
+  Local -->|"LOW"| Logs
 
-  %% Minimal styling
-  classDef panel fill:#F7F7F8,stroke:#D0D5DD,color:#111,stroke-width:1px;
-  classDef accent fill:#EEF4FF,stroke:#7AA2FF,color:#111,stroke-width:1px;
-  classDef store fill:#FFFFFF,stroke:#D0D5DD,color:#111,stroke-width:1px;
-  classDef node fill:#FFFFFF,stroke:#D0D5DD,color:#111,stroke-width:1px;
+  API --> R
+  R --> Verify
+  Verify -->|"risk"| Med
+  Verify -->|"ok"| Logs
 
-  class Mobile,Cache,Data panel;
-  class API accent;
-  class Redis,Events,Shared store;
-  class SMS,Local,UI,Gateway,Rules,Model,Alerts,Guardian node;
+  Med -->|"share"| Dispatch
+  Dispatch -.->|"notify"| G2["Guardian"]
+  Dispatch --> Shared
 
-  linkStyle default stroke:#98A2B3,stroke-width:1px;
+  %% --- Dark minimal styling ---
+  classDef panel fill:#15171A,stroke:#2A2F36,color:#E6E6E6,stroke-width:1px;
+  classDef node  fill:#0F1115,stroke:#2A2F36,color:#E6E6E6,stroke-width:1px;
+  classDef store fill:#0B0D10,stroke:#3A404A,color:#E6E6E6,stroke-width:1px;
+  classDef warn  fill:#1B1D22,stroke:#6B7280,color:#EDEDED,stroke-width:1.5px;
 
+  class FE,BE,C,D panel;
+  class SMS,Local,API,Verify,Dispatch,G1,G2 node;
+  class Logs,Shared,R store;
+  class Hi,Med warn;
+
+  linkStyle default stroke:#6B7280,stroke-width:1px;
 ```
 
 ## Local Setup
