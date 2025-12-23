@@ -58,7 +58,7 @@ graph LR
   subgraph FE["Android App"]
     SMS["SMS Receiver"]
     Local["On-device Check"]
-    UI["User Prompt / Alert"]
+    UI["User Alert"]
   end
 
   subgraph BE["Backend"]
@@ -77,16 +77,17 @@ graph LR
   end
 
   SMS --> Local
-  Local -->|"high"| UI
-  UI -.-> Notify
+  Local --> UI
+  Local --> API
 
-  Local -->|"medium"| API
-  API --> R --> Verify
-  Verify -->|"risk"| UI
-  Verify -->|"ok"| Logs
+  API --> Verify
+  Verify --> R
+  Verify --> Logs
+  Verify --> UI
 
-  UI -->|"share"| Notify
+  UI --> Notify
   Notify --> Shared
+  Notify -.-> Guardian
 ```
 
 ## Local Setup
