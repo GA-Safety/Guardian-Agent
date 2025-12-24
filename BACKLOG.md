@@ -33,7 +33,7 @@
 
 ## Epic 1: Database & Backend Foundation
 
-### Story 1.1: Database Schema
+### Story 1.1: Database Schema (DONE)
 
 #### BE-01: Database Schema
 **Title:** Design and implement core database schema

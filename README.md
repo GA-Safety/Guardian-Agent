@@ -80,28 +80,55 @@ graph LR
 
 ## Local Setup
 
-### Requirements
+### Quick Start
+
+Run the setup script to automatically install all dependencies:
+
+```bash
+./setup.sh
+```
+
+This will:
+- Create a Python virtual environment (`.venv`)
+- Install all dependencies from `backend/requirements.txt`
+- Create `.env` file from `.env.example` if it doesn't exist
+- Optionally test database connection
+- Optionally run database migrations
+
+### Manual Setup
+
+#### Requirements
 - Python 3.11+
-- PostgreSQL 15+
+- PostgreSQL 15+ (AWS RDS)
 - Redis 7+
 - Android Studio (latest)
 
-### Run Locally
+#### Backend Setup
 
 ```bash
-# Backend
-cd backend
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-alembic upgrade head
-uvicorn app.main:app --reload
+# Create virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
 
-# Android
-# Open android/ in Android Studio
-# Update API URL in strings.xml
-# Build and run on emulator/device
+# Install dependencies
+pip install -r backend/requirements.txt
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your database credentials
+
+# Run database migrations
+cd backend
+alembic upgrade head
+
+# Start the server (when implemented)
+uvicorn app.main:app --reload
 ```
+
+#### Android Setup
+- Open `android/` in Android Studio
+- Update API URL in `strings.xml`
+- Build and run on emulator/device
 
 ## License
 
