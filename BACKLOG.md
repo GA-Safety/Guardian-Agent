@@ -63,7 +63,7 @@
 
 ---
 
-### Story 1.2: Backend API Structure
+### Story 1.2: Backend API Structure (DONE)
 
 #### BE-02: Backend API Structure
 **Title:** Set up FastAPI application structure
