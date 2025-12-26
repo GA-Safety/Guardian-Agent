@@ -88,6 +88,8 @@ Run the setup script to automatically install all dependencies:
 ./setup.sh
 ```
 
+**Note:** Ensure `setup.sh` is kept up to date with the latest setup requirements.
+
 This will:
 - Create a Python virtual environment (`.venv`)
 - Install all dependencies from `backend/requirements.txt`
@@ -95,15 +97,33 @@ This will:
 - Optionally test database connection
 - Optionally run database migrations
 
-### Manual Setup
+### Using the Scripts
 
-#### Requirements
+**Setup (first time only):**
+```bash
+./setup.sh
+```
+
+**Start the server:**
+```bash
+./start_server.sh
+# Options: --port 8080, --host 0.0.0.0, --no-reload, --no-redis
+```
+
+**Stop the server:**
+```bash
+./stop_server.sh
+```
+
+The `start_server.sh` script automatically starts Redis in Docker if available. Use `stop_server.sh` to cleanly stop all services.
+
+### Requirements
 - Python 3.11+
 - PostgreSQL 15+ (AWS RDS)
 - Redis 7+
-- Android Studio (latest)
+- Docker (optional, for local Redis)
 
-#### Backend Setup
+### Backend Setup
 
 ```bash
 # Create virtual environment
@@ -117,15 +137,19 @@ pip install -r backend/requirements.txt
 cp .env.example .env
 # Edit .env with your database credentials
 
+# Start Redis (optional, using Docker)
+docker-compose up -d redis
+
 # Run database migrations
 cd backend
 alembic upgrade head
 
-# Start the server (when implemented)
-uvicorn app.main:app --reload
+# Start the server
+./start_server.sh
+# Or manually: uvicorn app.main:app --reload
 ```
 
-#### Android Setup
+### Android Setup
 - Open `android/` in Android Studio
 - Update API URL in `strings.xml`
 - Build and run on emulator/device
