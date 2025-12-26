@@ -3,11 +3,11 @@
 ## Build Order
 
 ### Phase 1: Foundation (Week 1-2)
-1. **BE-01** Database schema
-2. **BE-02** Backend API structure
+1. **BE-01** Database schema (DONE)
+2. **BE-02** Backend API structure (DONE)
 3. **BE-03** On-device rules engine (Android)
 4. **BE-04** ML classifier integration
-5. **BE-05** Analysis orchestrator
+5. **BE-05** Analysis orchestrator (DONE)
 6. **BE-06** Redis cache integration
 
 ### Phase 2: Core Features (Week 3-4)

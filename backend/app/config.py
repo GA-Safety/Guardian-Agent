@@ -4,6 +4,7 @@ Application configuration from environment variables
 import os
 from typing import Optional
 from pydantic_settings import BaseSettings
+from pydantic import ConfigDict
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -12,6 +13,11 @@ load_dotenv()
 
 class Settings(BaseSettings):
     """Application settings"""
+    
+    model_config = ConfigDict(
+        env_file=".env",
+        case_sensitive=True,
+    )
     
     # Database settings
     DB_HOST: str
@@ -34,10 +40,6 @@ class Settings(BaseSettings):
     
     # CORS settings (comma-separated in env, or JSON array)
     CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:8080"]
-    
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
 
 
 # Create settings instance
