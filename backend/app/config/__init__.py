@@ -19,5 +19,21 @@ spec.loader.exec_module(_config_module)
 settings = _config_module.settings
 Settings = _config_module.Settings
 
-__all__ = ["settings", "Settings"]
+from .cache_config import (
+    CACHE_TTL,
+    CACHE_KEY_PREFIXES,
+    get_message_cache_key,
+    get_pattern_cache_key,
+    get_url_cache_key,
+)
+
+__all__ = [
+    "settings",
+    "Settings",
+    "CACHE_TTL",
+    "CACHE_KEY_PREFIXES",
+    "get_message_cache_key",
+    "get_pattern_cache_key",
+    "get_url_cache_key",
+]
 
