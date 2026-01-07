@@ -1,0 +1,76 @@
+{
+  "scam_messages": [
+    {
+      "message_id": "scam_001",
+      "text": "URGENT: Your Bank of America account has been suspended due to suspicious activity. Verify your identity immediately at bit.ly/boa-verify or your account will be permanently closed within 24 hours.",
+      "sender": "+1-555-0123",
+      "expected_risk": "high",
+      "description": "Classic bank phishing with urgency, account suspension, and shortened URL"
+    },
+    {
+      "message_id": "scam_002",
+      "text": "Congratulations! You've been selected to receive $5,000. Click here to claim your prize: www.prize-winners-official.tk/claim?id=ABC123",
+      "sender": "+1-555-0456",
+      "expected_risk": "high",
+      "description": "Prize scam with suspicious TLD domain"
+    },
+    {
+      "message_id": "scam_003",
+      "text": "This is the IRS. You owe $3,847 in back taxes. Pay immediately via gift card or face legal action. Call 555-TAX-SCAM.",
+      "sender": "+1-555-0789",
+      "expected_risk": "high",
+      "description": "Government impersonation with money/gift card request"
+    },
+    {
+      "message_id": "scam_004",
+      "text": "Your package delivery failed. Confirm your address and pay $2.99 redelivery fee: t.co/pkg-redeliver",
+      "sender": "+1-555-0987",
+      "expected_risk": "medium",
+      "description": "Delivery scam with small payment request and shortened URL"
+    },
+    {
+      "message_id": "scam_005",
+      "text": "ALERT: Unusual login detected on your Netflix account. Verify your payment info within 48 hours to avoid service interruption: https://netflix-secure-login.ml/update",
+      "sender": "+1-555-0654",
+      "expected_risk": "high",
+      "description": "Streaming service impersonation with payment update request"
+    }
+  ],
+  "safe_messages": [
+    {
+      "message_id": "safe_001",
+      "text": "Hi Mom! Just landed in Chicago. Flight was smooth. I'll call you when I get to the hotel. Love you!",
+      "sender": "+1-555-1111",
+      "expected_risk": "low",
+      "description": "Personal family message"
+    },
+    {
+      "message_id": "safe_002",
+      "text": "Your Amazon package will arrive tomorrow between 2-4 PM. Track your order at amazon.com/orders",
+      "sender": "Amazon",
+      "expected_risk": "low",
+      "description": "Legitimate delivery notification from known sender"
+    },
+    {
+      "message_id": "safe_003",
+      "text": "Reminder: Your dentist appointment is scheduled for tomorrow at 10:00 AM. Reply CONFIRM or call 555-DENTIST to reschedule.",
+      "sender": "+1-555-2222",
+      "expected_risk": "low",
+      "description": "Appointment reminder from local business"
+    },
+    {
+      "message_id": "safe_004",
+      "text": "Your verification code is 582916. This code will expire in 10 minutes. Do not share this code with anyone.",
+      "sender": "Google",
+      "expected_risk": "low",
+      "description": "Legitimate 2FA code with security warning"
+    },
+    {
+      "message_id": "safe_005",
+      "text": "Thanks for joining our newsletter! Get 20% off your next purchase with code WELCOME20. Visit store.example.com to shop.",
+      "sender": "+1-555-3333",
+      "expected_risk": "low",
+      "description": "Marketing message from subscribed newsletter"
+    }
+  ]
+}
