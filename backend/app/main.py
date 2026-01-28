@@ -14,6 +14,12 @@ from sqlalchemy import text
 from .config import settings
 from .database import engine, Base
 from .redis_client import RedisClient
+from .services.ml_analyzer import get_ml_analyzer
+from .models.ml_analysis import (
+    AnalyzeSMSRequest,
+    AnalyzeSMSResponse,
+    HealthCheckResponse,
+)
 
 # Configure structured logging
 logging.basicConfig(
@@ -48,7 +54,15 @@ async def lifespan(app: FastAPI):
         logger.info("Database connection pool initialized")
     except Exception as e:
         logger.warning(f"Database connection failed during startup: {e}. Health check will show database as unavailable.")
-    
+
+    # Load ML models
+    try:
+        ml_analyzer = get_ml_analyzer()
+        ml_analyzer.load_models()
+        logger.info("ML models loaded successfully")
+    except Exception as e:
+        logger.error(f"Failed to load ML models: {e}. ML analysis will not be available.")
+
     logger.info("Application startup complete")
     
     yield
@@ -181,4 +195,64 @@ async def favicon():
     """Favicon endpoint - returns 204 No Content"""
     from fastapi.responses import Response
     return Response(status_code=204)
+
+
+# ML Analysis Endpoints
+@app.post("/analyze_sms", response_model=AnalyzeSMSResponse)
+async def analyze_sms(request: AnalyzeSMSRequest):
+    """
+    Analyze an SMS message for scam/phishing indicators.
+
+    Uses an ensemble of ML models and rule-based detection to assess risk.
+    Returns a risk score (0-1), risk level (low/medium/high), and human-readable reasons.
+    """
+    try:
+        ml_analyzer = get_ml_analyzer()
+        result = await ml_analyzer.analyze_sms(
+            message_id=request.message_id,
+            text=request.text,
+            sender=request.sender,
+            received_ts=request.received_ts,
+        )
+        return result
+    except ValueError as e:
+        logger.warning(f"Validation error in analyze_sms: {e}")
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"error": str(e), "status_code": 400},
+        )
+    except Exception as e:
+        logger.error(f"Error analyzing SMS: {e}", exc_info=True)
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"error": "Analysis failed", "status_code": 500},
+        )
+
+
+@app.get("/ml_health", response_model=HealthCheckResponse)
+async def ml_health_check():
+    """
+    Health check endpoint for ML service.
+
+    Returns status of ML models and inference capabilities.
+    """
+    try:
+        ml_analyzer = get_ml_analyzer()
+        device = "GPU" if ml_analyzer.device == 0 else "CPU"
+
+        return {
+            "status": "ok" if ml_analyzer._models_loaded else "degraded",
+            "models_loaded": ml_analyzer._models_loaded,
+            "device": device,
+        }
+    except Exception as e:
+        logger.error(f"ML health check failed: {e}")
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content={
+                "status": "error",
+                "models_loaded": False,
+                "device": "unknown",
+            },
+        )
 
